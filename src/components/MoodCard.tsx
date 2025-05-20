@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Smile, Meh, Frown } from 'lucide-react';
 import { MoodEntry, Mood } from '@/types';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale'; // For Indonesian date formatting
+import { id } from 'date-fns/locale'; 
 
 interface MoodCardProps {
   entry: MoodEntry;
@@ -27,7 +27,7 @@ const MoodCard: React.FC<MoodCardProps> = ({ entry }) => {
   const color = moodColors[entry.mood];
 
   return (
-    <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 ease-in-out bg-white">
+    <Card className="shadow-md hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-in-out bg-white animate-fade-in">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <Icon size={32} className={color} />
@@ -48,4 +48,3 @@ const MoodCard: React.FC<MoodCardProps> = ({ entry }) => {
 };
 
 export default MoodCard;
-

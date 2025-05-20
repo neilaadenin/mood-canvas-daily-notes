@@ -1,33 +1,28 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
-import { useToast } from '@/hooks/use-toast'; // Corrected import path
+import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Placeholder for actual login logic
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login attempt with:', email, password);
-    // Here you would typically call your auth service
-    // For now, we'll simulate a successful login and navigate to home
     toast({
       title: "Login Berhasil (Simulasi)",
       description: "Anda akan diarahkan ke halaman utama.",
       className: "bg-blue-500 text-white"
     });
-    navigate('/'); // Navigate to HomePage (which is at '/')
+    navigate('/'); // Navigate to DashboardPage (which is at '/')
   };
 
-  // Placeholder for actual sign up navigation or modal
   const handleSignUp = () => {
     console.log('Sign Up clicked');
     toast({
@@ -39,8 +34,8 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4">
-      <Card className="w-full max-w-md shadow-xl bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4 animate-fade-in">
+      <Card className="w-full max-w-md shadow-xl bg-white animate-scale-in">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-purple-700">Selamat Datang!</CardTitle>
           <CardDescription className="text-gray-600">Masuk untuk mencatat mood harianmu.</CardDescription>
@@ -56,7 +51,7 @@ const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                className="border-gray-300 focus:ring-purple-500 focus:border-purple-500 transition-all"
               />
             </div>
             <div className="space-y-2">
@@ -68,10 +63,10 @@ const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                className="border-gray-300 focus:ring-purple-500 focus:border-purple-500 transition-all"
               />
             </div>
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3">
+            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 transform hover:scale-105 transition-all duration-200">
               Login
             </Button>
           </form>
@@ -79,7 +74,7 @@ const LoginPage: React.FC = () => {
         <CardFooter className="flex flex-col items-center space-y-2">
           <p className="text-sm text-gray-600">
             Belum punya akun?{' '}
-            <Button variant="link" onClick={handleSignUp} className="text-purple-600 hover:text-purple-800 p-0 h-auto">
+            <Button variant="link" onClick={handleSignUp} className="text-purple-600 hover:text-purple-800 p-0 h-auto transition-colors">
               Sign Up di sini
             </Button>
           </p>
@@ -90,4 +85,3 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
-

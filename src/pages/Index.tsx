@@ -1,10 +1,9 @@
 
-import HomePage from './HomePage';
+import DashboardPage from './DashboardPage'; // Updated import
 
-// Index page will render the HomePage
+// Index page will render the DashboardPage
 const Index = () => {
-  return <HomePage />;
+  return <DashboardPage />;
 };
 
 export default Index;
-
