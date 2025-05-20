@@ -6,23 +6,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Save } from 'lucide-react';
+import { User, Mail, Save, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage: React.FC = () => {
-  const [name, setName] = useState(''); // Optional name input
+  const { user, signOut } = useAuth(); // Gunakan useAuth
+  const [name, setName] = useState(user?.user_metadata?.full_name || ''); // Ambil nama jika ada
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Placeholder email, replace with actual user data from auth
-  const userEmail = "pengguna@contoh.com"; 
+  const userEmail = user?.email || "Memuat email...";
 
   const handleSaveChanges = (e: React.FormEvent) => {
     e.preventDefault();
+    // Di sini Anda bisa menambahkan logika untuk menyimpan nama ke Supabase user_metadata
+    // Contoh: await supabase.auth.updateUser({ data: { full_name: name } })
     console.log('Saving profile changes:', { name });
     toast({
       title: "Profil Disimpan (Simulasi)",
       description: "Perubahan profil Anda telah disimpan.",
       className: "bg-green-500 text-white"
     });
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logout Berhasil",
+      description: "Anda telah keluar.",
+    });
+    navigate('/login'); // Arahkan ke halaman login setelah logout
   };
 
   return (
@@ -68,6 +82,9 @@ const ProfilePage: React.FC = () => {
                 <Save size={18} className="mr-2" /> Simpan Perubahan
               </Button>
             </form>
+            <Button onClick={handleLogout} variant="outline" className="w-full mt-4 border-pink-500 text-pink-600 hover:bg-pink-50 hover:text-pink-700">
+              <LogOut size={18} className="mr-2" /> Logout
+            </Button>
           </CardContent>
         </Card>
       </main>

@@ -2,46 +2,79 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import MoodList from '@/components/MoodList';
-import { MoodEntry, Mood } from '@/types';
+import { MoodEntry, Mood, RawMoodEntryFromSupabase } from '@/types'; // Update type imports
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
-import { Calendar } from "@/components/ui/calendar"; // Assuming you have this or a similar component
+import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-
-// Mock data for history
-const mockHistoryEntries: MoodEntry[] = [
-  { id: '1', mood: 'happy', note: 'Meeting berjalan lancar hari ini!', date: new Date(2025, 4, 19, 10, 30) },
-  { id: '2', mood: 'neutral', note: 'Kerjaan numpuk, tapi masih oke.', date: new Date(2025, 4, 18, 15, 0) },
-  { id: '3', mood: 'sad', note: 'Kucingku sakit :(', date: new Date(2025, 4, 17, 9, 15) },
-  { id: '4', mood: 'happy', note: 'Dapat bonus!', date: new Date(2025, 4, 16, 17, 0) },
-  { id: '5', mood: 'neutral', note: 'Cuaca mendung.', date: new Date(2025, 4, 15, 12, 0) },
-];
+import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
+import { supabase } from '@/integrations/supabase/client'; // Import supabase
+import { useToast } from '@/hooks/use-toast';
 
 const HistoryPage: React.FC = () => {
-  const [filteredEntries, setFilteredEntries] = useState<MoodEntry[]>(mockHistoryEntries);
+  const [allEntries, setAllEntries] = useState<MoodEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<MoodEntry[]>([]);
   const [selectedMood, setSelectedMood] = useState<Mood | 'all'>('all');
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [isLoadingEntries, setIsLoadingEntries] = useState(true);
 
   useEffect(() => {
-    let entries = [...mockHistoryEntries];
+    const fetchHistoryEntries = async () => {
+      if (!user || authLoading) return;
+      setIsLoadingEntries(true);
+      try {
+        const { data, error } = await supabase
+          .from('moods')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching history entries:', error);
+          toast({ title: "Error", description: "Gagal mengambil riwayat mood.", variant: "destructive" });
+          setAllEntries([]);
+        } else if (data) {
+          const formattedEntries: MoodEntry[] = data.map((entry: RawMoodEntryFromSupabase) => ({
+            ...entry,
+            date: new Date(entry.created_at),
+          }));
+          setAllEntries(formattedEntries);
+        }
+      } catch (e) {
+        console.error('Exception fetching history entries:', e);
+        toast({ title: "Error", description: "Terjadi kesalahan saat mengambil riwayat.", variant: "destructive" });
+        setAllEntries([]);
+      } finally {
+        setIsLoadingEntries(false);
+      }
+    };
+
+    fetchHistoryEntries();
+  }, [user, authLoading, toast]);
+
+  useEffect(() => {
+    let entries = [...allEntries];
     if (selectedMood !== 'all') {
       entries = entries.filter(entry => entry.mood === selectedMood);
     }
     if (startDate) {
-      entries = entries.filter(entry => entry.date >= startDate);
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      entries = entries.filter(entry => entry.date >= startOfDay);
     }
     if (endDate) {
-      // Set endDate to end of day for inclusive filtering
       const endOfDay = new Date(endDate);
       endOfDay.setHours(23, 59, 59, 999);
       entries = entries.filter(entry => entry.date <= endOfDay);
     }
     setFilteredEntries(entries.sort((a, b) => b.date.getTime() - a.date.getTime()));
-  }, [selectedMood, startDate, endDate]);
+  }, [selectedMood, startDate, endDate, allEntries]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100">
@@ -132,8 +165,11 @@ const HistoryPage: React.FC = () => {
             Reset Filter
           </Button>
         </div>
-
-        <MoodList entries={filteredEntries} />
+        {authLoading || isLoadingEntries ? (
+          <p className="text-center text-gray-500 mt-8">Memuat riwayat mood...</p>
+        ) : (
+          <MoodList entries={filteredEntries} />
+        )}
       </main>
       <footer className="text-center py-8 mt-12 text-sm text-gray-600">
         <p>&copy; {new Date().getFullYear()} Mood Journal. Dibuat dengan ❤️ oleh Lovable.</p>
