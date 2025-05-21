@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, Dispatch, SetStateAction } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client'; // Pastikan path ini benar
 
@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  setUser: Dispatch<SetStateAction<User | null>>; // Ditambahkan
+  setSession: Dispatch<SetStateAction<Session | null>>; // Ditambahkan
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,8 +44,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
+    // setUser and setSession will be updated by onAuthStateChange
+    // but for immediate UI feedback or if onAuthStateChange is slow, setting them here is also fine.
+    // However, the current onAuthStateChange should handle this.
+    // For consistency with how it's set up, onAuthStateChange will manage state changes post-signout.
   };
 
   const value = {
@@ -51,6 +55,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     user,
     loading,
     signOut,
+    setUser,    // Ditambahkan
+    setSession, // Ditambahkan
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
@@ -63,3 +69,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
