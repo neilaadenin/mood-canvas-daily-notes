@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Smile, FileText, CalendarDays, Palette, Sparkles, TrendingUp } from 'lucide-react';
+import DailyMotivation from '@/components/DailyMotivation';
 
 const features = [
   {
@@ -53,6 +54,13 @@ const LandingPage: React.FC = () => {
               <Link to="/login">Masuk / Daftar</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Daily Motivation Section */}
+      <section className="py-12">
+        <div className="container mx-auto px-6">
+          <DailyMotivation />
         </div>
       </section>
 
