@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import MoodEntryForm from '@/components/MoodEntryForm';
 import MoodList from '@/components/MoodList';
 import Navbar from '@/components/Navbar';
-import { MoodEntry, RawMoodEntryFromSupabase, Mood } from '@/types'; // Update import type
+import { MoodEntry, RawMoodEntryFromSupabase, Mood } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
 import { supabase } from '@/integrations/supabase/client'; // Import supabase
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +23,7 @@ const DashboardPage: React.FC = () => {
         const { data, error } = await supabase
           .from('moods')
           .select('*')
-          .eq('user_id', user.id) // Filter berdasarkan user_id
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -30,9 +31,12 @@ const DashboardPage: React.FC = () => {
           toast({ title: "Error", description: "Gagal mengambil data mood.", variant: "destructive" });
           setMoodEntries([]); // Set ke array kosong jika ada error
         } else if (data) {
-          const formattedEntries: MoodEntry[] = data.map((entry: RawMoodEntryFromSupabase) => ({
-            ...entry,
-            date: new Date(entry.created_at), // Konversi created_at string ke Date
+          const formattedEntries: MoodEntry[] = data.map((entry: Database['public']['Tables']['moods']['Row']) => ({
+            id: entry.id,
+            mood: entry.mood as Mood,
+            note: entry.note,
+            date: new Date(entry.created_at),
+            user_id: entry.user_id,
           }));
           setMoodEntries(formattedEntries);
         }
@@ -57,9 +61,9 @@ const DashboardPage: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('moods')
-        .insert([{ ...newEntryData, user_id: user.id }]) // user_id ditambahkan di sini
+        .insert([{ ...newEntryData, user_id: user.id }])
         .select()
-        .single(); // Ambil data yang baru saja diinsert
+        .single();
 
       if (error) {
         console.error('Error saving mood entry:', error);
@@ -67,14 +71,12 @@ const DashboardPage: React.FC = () => {
       } else if (data) {
         const newEntry: MoodEntry = {
           id: data.id,
-          mood: data.mood,
+          mood: data.mood as Mood,
           note: data.note,
           date: new Date(data.created_at),
           user_id: data.user_id,
         };
-        // Tambahkan ke awal list dan pastikan urutan tetap terjaga
         setMoodEntries(prevEntries => [newEntry, ...prevEntries].sort((a, b) => b.date.getTime() - a.date.getTime()));
-        // Toast sukses sudah ada di MoodEntryForm
       }
     } catch (e) {
         console.error('Exception saving mood entry:', e);

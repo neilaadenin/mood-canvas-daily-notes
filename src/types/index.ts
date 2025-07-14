@@ -2,18 +2,18 @@
 export type Mood = "happy" | "neutral" | "sad";
 
 export interface MoodEntry {
-  id: string; // UUID dari Supabase akan menjadi string
+  id: string;
   mood: Mood;
   note: string;
-  date: Date; // Ini akan diisi dari created_at (string) yang dikonversi ke Date
-  user_id?: string; // Opsional, karena RLS menangani ini di backend
+  date: Date;
+  user_id: string;
 }
 
-// Tipe untuk data yang diterima dari Supabase sebelum konversi
+// Type for data received from Supabase
 export interface RawMoodEntryFromSupabase {
   id: string;
   mood: Mood;
   note: string;
-  created_at: string; // Supabase mengembalikan timestamp sebagai string
+  created_at: string;
   user_id: string;
 }

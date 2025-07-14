@@ -7,7 +7,7 @@ import { Mood, MoodEntry } from '@/types';
 import { useToast } from '@/hooks/use-toast'; // Corrected import path
 
 interface MoodEntryFormProps {
-  onSaveMood: (moodEntry: Omit<MoodEntry, 'id' | 'date'>) => void;
+  onSaveMood: (moodEntry: { mood: Mood; note: string }) => void;
 }
 
 const MoodEntryForm: React.FC<MoodEntryFormProps> = ({ onSaveMood }) => {

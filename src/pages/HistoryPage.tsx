@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import MoodList from '@/components/MoodList';
-import { MoodEntry, Mood, RawMoodEntryFromSupabase } from '@/types'; // Update type imports
+import { MoodEntry, Mood, RawMoodEntryFromSupabase } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { Calendar } from "@/components/ui/calendar";
@@ -40,9 +41,12 @@ const HistoryPage: React.FC = () => {
           toast({ title: "Error", description: "Gagal mengambil riwayat mood.", variant: "destructive" });
           setAllEntries([]);
         } else if (data) {
-          const formattedEntries: MoodEntry[] = data.map((entry: RawMoodEntryFromSupabase) => ({
-            ...entry,
+          const formattedEntries: MoodEntry[] = data.map((entry: Database['public']['Tables']['moods']['Row']) => ({
+            id: entry.id,
+            mood: entry.mood as Mood,
+            note: entry.note,
             date: new Date(entry.created_at),
+            user_id: entry.user_id,
           }));
           setAllEntries(formattedEntries);
         }
